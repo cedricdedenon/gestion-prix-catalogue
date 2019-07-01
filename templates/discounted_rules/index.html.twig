@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Règles{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+
+	<div class="container my-3">
+		 <div class="row">
+    		<div class="col-8">
+   			 	<h1>{{ controller_name }} </h1>
+   			</div>
+    		<div class="col-4">
+
+			</div>
+   		</div>
+    </div>
+     {% if rules %}
+	     <table class="table table-striped my-5">
+	    	<thead>
+	    		<tr>
+	    			<th>id</th>
+	    			<th>Expression de la règle</th>
+	    			<th>Pourcentage de réduction</th>
+	    		</tr>
+	    	</thead>
+	    	<tbody>
+	    		{% for rule in rules %}
+	    		 	<tr>
+	    		 		<td> {{ rule.id }} </td>
+	    		 		<td> {{ rule.ruleexpression }} </td>
+	    		 		<td> {{ rule.discountpercent }} </td>
+	    		 	</tr>
+	    		 {% endfor %}	
+	    	</tbody>
+	    </table>
+	{% endif %}
+</div>
+{% endblock %}
