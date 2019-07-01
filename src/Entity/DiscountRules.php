@@ -24,7 +24,7 @@ class DiscountRules
     /**
      * @ORM\Column(type="integer")
      */
-    private $discounted_percent;
+    private $discount_percent;
 
     public function getId(): ?int
     {
@@ -43,14 +43,14 @@ class DiscountRules
         return $this;
     }
 
-    public function getDiscountedPercent(): ?int
+    public function getDiscountPercent(): ?int
     {
-        return $this->discounted_percent;
+        return $this->discount_percent;
     }
 
-    public function setDiscountedPercent(int $discounted_percent): self
+    public function setDiscountPercent(int $discount_percent): self
     {
-        $this->discounted_percent = $discounted_percent;
+        $this->discount_percent = $discount_percent;
 
         return $this;
     }
