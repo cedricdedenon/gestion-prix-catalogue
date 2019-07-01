@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 use App\Repository\ProductsRepository;
 
+use App\Service\EmailService;
 
 class SendEmailCommand extends Command
 {
@@ -22,8 +23,9 @@ class SendEmailCommand extends Command
     protected $em;
 
     
-    public function __construct(EntityManagerInterface $em){
+    public function __construct(EntityManagerInterface $em, EmailService $service){
         parent::__construct();
+        $this->service = $service;
         $this->em = $em;
     }
 
@@ -117,7 +119,12 @@ class SendEmailCommand extends Command
 
             $output->writeln('La base de données à bien été modifiée !');
 
-             // 2.   ON ENVERRA UN EMAIL PAR LA SUITE
+            // 2.   ON RECUPERE TOUS LES PRODUITS DU CATALOGUE DONT LES PRODUITS ONT UNE REDUCTION ET ON ENVOIE UN MAIL
+            // NE PAS OUBLIER DE CONFIGURER MAILER_URL DANS LE FICHIER .env
+            // Pour GMAIL --> MAILER_URL = gmail://username:password@localhost
+            $products = $this->em->getRepository(Products::class)->findProducts();
+            $this->service->sendEmail($products);
+            $output->writeln('Un email à été envoyé !');
         }
     }
 }
