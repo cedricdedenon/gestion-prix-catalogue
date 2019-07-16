@@ -28,7 +28,7 @@ class DiscountRulesType extends AbstractType
                     'class' => "form-control"
                 ]
             ])
-            ->add('Enregistrer', SubmitType::class, [
+            ->add('enregistrer', SubmitType::class, [
                 'attr' => [
                     'class' => "btn btn-success"
                 ]

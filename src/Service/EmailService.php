@@ -2,18 +2,22 @@
 
 namespace App\Service;
 
-use App\Entity\Products;
+use App\Repository\ProductsRepository;
 
 class EmailService{
     private $mailer;
+    private $productRepository;
 
-    public function __construct(\Swift_Mailer $mailer){;
+    public function __construct(\Swift_Mailer $mailer, ProductsRepository $productRepository){
+        $this->productRepository = $productRepository;
         $this->mailer = $mailer;
 
     }
 
-    public function sendEmail($products)
+    public function sendEmail()
     {
+        $products = $this->productRepository->findProducts();
+
         $body =  '<html>' .
                     ' <body>' .
                         '<h1>Produits en promotion actuellement</h1>' .

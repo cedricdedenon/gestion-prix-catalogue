@@ -6,6 +6,9 @@ use App\Entity\Products;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+
 /**
  * @method Products|null find($id, $lockMode = null, $lockVersion = null)
  * @method Products|null findOneBy(array $criteria, array $orderBy = null)
@@ -19,66 +22,18 @@ class ProductsRepository extends ServiceEntityRepository
         parent::__construct($registry, Products::class);
     }
 
-    public function findPriceEgalAt($rule_type, $rule_price)
+    /**
+    * @param Product $product
+    *
+    * @throws ORMException
+    * @throws OptimisticLockException
+    */
+    public function save(Products $product): void
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.type = :type')
-            ->andWhere('p.price = :val')
-            ->setParameter('type', $rule_type)
-            ->setParameter('val', $rule_price)
-            ->getQuery()
-            ->getResult()
-        ;
-    } 
-
-    public function findPriceHigherThan($rule_type, $rule_price)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.type = :type')
-            ->andWhere('p.price > :val')
-            ->setParameter('type', $rule_type)
-            ->setParameter('val', $rule_price)
-            ->getQuery()
-            ->getResult()
-        ;
+        $this->getEntityManager()->persist($product);
+        $this->getEntityManager()->flush($product);
     }
-
-    public function findPriceHigherOrEgalThan($rule_type, $rule_price)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.type = :type')
-            ->andWhere('p.price >= :val')
-            ->setParameter('type', $rule_type)
-            ->setParameter('val', $rule_price)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    public function findPriceLowerThan($rule_type, $rule_price)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.type = :type')
-            ->andWhere('p.price < :val')
-            ->setParameter('type', $rule_type)
-            ->setParameter('val', $rule_price)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    public function findPriceLowerOrEgalThan($rule_type, $rule_price)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.type = :type')
-            ->andWhere('p.price <= :val')
-            ->setParameter('type', $rule_type)  
-            ->setParameter('val', $rule_price)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
+    
     public function findProducts (){
         return $this->createQueryBuilder('p')
         ->andWhere('p.discounted_price IS NOT NULL')
