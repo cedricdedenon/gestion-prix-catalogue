@@ -23,18 +23,6 @@ Les données suivantes sont validées :
 
 Chaque matin, une tâche planifiée (CRON) est lancé pour remettre à jour les prix réduits de la totalité du catalogue de produits. Cette commande envoie un email récapitulant tous les tarifs modifiés.
 
-Ne pas oublier de changer la directive MAILER_URL dans le fichier .env pour l'envoi de l'email.
-Dans le fichier src/Service/EmailService.php, modifier également les adresses mail du destinataire et de l'émetteur.
-
-Une commande (app:send-email) a été créée pour réaliser ces tâches, il suffit de lancer la commande `php bin/console app:send-email`
-
-Pour créer une tâche planifiée, on utilise soit le crontab (sous Linux), soit schtasks (sous Windows)
-* Sous Windows [Schtasks](https://docs.microsoft.com/en-us/windows/desktop/TaskSchd/schtasks)
-
-	`schtasks /CREATE /TN "catalogue" /TR "php \path\to\your\project\bin\console app:send-email" /SC DAILY /mo 1`
-	`schtasks /DELETE /tn "Catalogue"`
-
-* Sous Linux [Cron](https://fr.wikipedia.org/wiki/Cron)
 
 # Les technologies/méthodologies à utiliser
 
@@ -80,19 +68,84 @@ id|name|price|discounted_price|type|
 
 id|rule_expression|discount_percent|
 -------------|-------------|-------------|
-1|product.type = 'Electro-ménager' and product.price >= 100 |20|
-2|product.type = 'Hi-fi' and product.price < 100 |10|
-3|product.type = 'Cuisine'|10|
+1|product.type == 'Electro-ménager' and product.price >= 100 |20|
+2|product.type == 'Hi-fi' and product.price < 100 |10|
+3|product.type == 'Cuisine'|10|
+
 
 
 -----------------
 
+# Procédure
+
+1. Installer PHP, Apache, MySQL, Composer et autres outils si besoin (PhpMyAdmin ...). Cloner le projet
+2. Installer les paquets manquants
+
+	`composer install`
+
+3. Créer la base de donnée 'catalogue'
+
+	`php bin/console doctrine:database:create catalogue`
+
+4. **Dans le .env, changer les directives**
+	* DATABASE_URL pour se connecter à MySQL avec votre identifiant et votre mot de passe, et sélectionner la base de donnée 'catalogue'.
+	* MAILER_URL pour l'envoi de l'email, avec votre email et votre mot de passe
+	
+	  Dans le fichier src/Service/EmailService.php, modifier également les adresses mail du destinataire et de l'émetteur.
+
+5. Faire la migration des tables dans la base de donnée 'catalogue'
+
+	`php bin/console doctrine:migrations:migrate`
+	
+6. Ajouter les fixtures pour remplir la table 'product' (optionnel)
+
+	`php bin/console doctrine:fixtures:load`
+
+7. Lancer le serveur Symfony
+	`symfony server:start`
+	
+	ou `php -S 127.0.0.1:8000 -t public`
+
+8. Utiliser la commande
+
+   Une commande (app:send-email) a été créée pour réaliser l'actualisation des prix des produits en promotion et envoyer une email, il   suffit de lancer la commande `php bin/console app:send-email`
+
+   Pour créer une tâche planifiée, on utilise soit le crontab de l'utilisateur (sous Linux) dans le Terminal, soit schtasks (sous Windows) dans l'invité de commande
+   * Sous Windows [Schtasks](https://docs.microsoft.com/en-us/windows/desktop/TaskSchd/schtasks)
+
+		`schtasks /CREATE /TN "catalogue" /TR "php \path\to\your\project\bin\console app:send-email" /SC DAILY /mo 1`
+	
+		`schtasks /DELETE /tn "Catalogue"`
+
+   * Sous Linux [Cron](https://fr.wikipedia.org/wiki/Cron)
+
+		`crontab -e`
+	
+		`0 9 * * * php \path\to\your\project\bin\console app:send-email >> /dev/null 2>&1`
+	
+ 		Dans ce cas, tous les matins à 9h00, un email sera envoyé avec les prix réduits
+
+	**Attention** pour que l'email soit envoyé, il faut désactiver le pare-feu de certains Antivirus (comme Avast)
+	
+	
+	
+	
+-----------------
+
 # Environnement de test
 
-Le projet a été validé sous Windows 10, avec Xampp en local (répertoire de travail htdocs) et en utilisant:
-* PHP 7.2 (cli)
-* Symfony 4.3.2
-* Xampp 3.2.2 
-* phpMyadmin 4.7.4
-* Bootstrap 4.3.1
-* jQuery 3.3.1
+Le projet a été validé:
+ * Sous Windows 10, avec 
+	* PHP 7.2 (cli) / Apache
+	* Symfony 4.3.2
+	* Xampp 3.2.2 
+	* phpMyadmin 4.7.4
+	* Bootstrap 4.3.1
+	* jQuery 3.3.1
+
+ * Sous Linux avec la distribution Ubuntu 16.04 (Debian), avec
+ 	* PHP 7.3 (cli) / Apache
+	* Symfony 4.3.2
+	* MySQL server 5.7 
+	* Bootstrap 4.3.1
+	* jQuery 3.3.1
